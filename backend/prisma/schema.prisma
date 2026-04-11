@@ -19,7 +19,7 @@ model User {
   email        String        @unique
   password     String
   name         String
-  phone        String?       // Номер телефона (опционально для регистрации)
+  phone        String? // Номер телефона (опционально для регистрации)
   role         Role          @default(USER)
   appointments Appointment[] // Связь: у одного юзера много записей
   createdAt    DateTime      @default(now())
@@ -29,18 +29,42 @@ model User {
 model Master {
   id             Int           @id @default(autoincrement())
   name           String
-  specialization String        // Например, "Топ-барбер" или "Стажер"
+  specialization String // Например, "Топ-барбер" или "Стажер"
   bio            String?
   appointments   Appointment[] // Связь: у одного мастера много записей
 }
 
+// Модель Услуги
+model Service {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float // Цена услуги
+  duration     Int // Длительность в минутах (например, 30, 60)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+}
+
 // Модель Записи (Связующее звено)
 model Appointment {
-  id        Int      @id @default(autoincrement())
-  startTime DateTime // Время записи
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  master    Master   @relation(fields: [masterId], references: [id])
-  masterId  Int
-  status    String   @default("pending") // Например: pending, confirmed, cancelled
+  id Int @id @default(autoincrement())
+
+  // Время начала записи
+  startTime DateTime
+
+  // Кто записывается
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  // К кому записывается
+  masterId Int
+  master   Master @relation(fields: [masterId], references: [id])
+
+  // На какую услугу (ЭТОГО НЕ БЫЛО РАНЬШЕ)
+  serviceId Int
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
 }
